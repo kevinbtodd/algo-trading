@@ -8,10 +8,23 @@ import sqlite3
 import bitfinex
 import kraken
 
+""" 
+    - This script collects standardised bitcoin tick data from any major exchange using their API's. 
+    - It checks that the timestamps on each tick are matching before storing them in a database. 
+    - It is important that the timestamps match when being used in live trading as if they do not match, 
+      a false trading signal may be generated (you dont want to input a 10 minute old price with a 2 
+      second old price into a trading algorithm).
+    - The script uses multithreading to simultaneously send requests to any number of exchanges.
+    - The ticks are stored in a database in a standardised format:
+        ID - Unique tick identifier
+        BID - Current exchange bid price
+        ASK - Current exchange ask price
+        TIMESTAMP - UNIX timestamp when the price information was valid
+"""
 
 # MAKE SURE TABLE NAMES ARE IN THE RIGHT ORDER (LOWEST ID NUMBER FIRST)
-tables = ['bitfinex', 'kraken']
-database = 'ticks.db'
+tables = ['bitfinex', 'kraken'] # Name of the tables in the database
+database = 'ticks.db' # Name of the database
 
 num_exchanges = len(tables) # number of exchanges
 get_q = queue.Queue(maxsize = num_exchanges)
@@ -24,10 +37,6 @@ b1 = threading.Barrier(num_threads)
 b2 = threading.Barrier(2) # always 2
 
 sorted_q = queue.Queue(maxsize = 1) # always 1
-
-
-# filenames = ['12-12-cex.csv', '12-12-bitfinex.csv']
-
 
 def requestTicks(exchange, identifier): # n threads = 3
 
@@ -91,48 +100,6 @@ def sortTicks(): # n threads = 1
         else:
             continue
 
-# write ticks to csv files, takes list of filenames as argument
-def writeTicks(filenames):
-
-    # write column headers once only
-    size = len(filenames)
-
-    for i in range(size):
-        filename = filenames[i]
-
-        with open(filename, "w", newline = '\n') as outfile:
-            writer = csv.writer(outfile, delimiter = ',')
-            writer.writerow(['bid', 'ask', 'timestamp'])
-
-    # write tick data
-    while True:
-
-    # wait for sorted ticks to get put in queue
-        b2.wait()
-
-        sync_ticks = sorted_q.get()
-
-        sorted_q.task_done()
-
-        j = 0
-
-        for i in sync_ticks:
-            bid = i['bid']
-            ask = i['ask']
-            timestamp = i['timestamp']
-
-            filename = filenames[j]
-
-            data = {'bid': bid, 'ask': ask, 'timestamp': timestamp}
-
-            with open(filename, "a", newline = '\n') as outfile:
-                writer = csv.DictWriter(outfile, data.keys())
-                writer.writerow(data)
-
-            print('write success')
-
-            j += 1
-
 # store ticks in SQLite database, takes list of table names as argument
 def storeTicks(tables, database):
 
@@ -192,54 +159,11 @@ def storeTicks(tables, database):
         conn.commit()
         conn.close()
 
-# def deleteFrom(table):
-#
-#     # connect to sqlite database 'tickdata.db'
-#     conn = sqlite3.connect('tickdata.db')
-#     c = conn.cursor()
-#
-#     c.execute("DELETE FROM " + table + " WHERE id > 158393 and id < 248072")
-#
-#     # close connection
-#     conn.commit()
-#     conn.close()
-
-
-
-# def importCSV(table, filename):
-#
-#     # connect to sqlite database 'tickdata.db'
-#     conn = sqlite3.connect('tickdata.db')
-#     c = conn.cursor()
-#
-#     c.execute("""CREATE TABLE IF NOT EXISTS """ + table + """ (
-#                 id integer primary key,
-#                 bid real,
-#                 ask real,
-#                 timestamp integer
-#                 )""")
-#
-#     with open(filename,'r') as fin:
-#         dr = csv.DictReader(fin) # comma is default delimiter
-#         to_db = [(i['bid'], i['ask'], i['timestamp']) for i in dr]
-#
-#     c.executemany("INSERT INTO " + table + " (bid, ask, timestamp) VALUES (?, ?, ?);", to_db)
-#     print('import success')
-#     conn.commit()
-#     conn.close()
-
-# deleteFrom("cex")
-# deleteFrom("bitfinex")
-
-# importCSV('cex', '12-12-cex.csv')
-# importCSV('bitfinex', '12-12-bitfinex.csv')
-
 # start all threads here
 #t1 = threading.Thread(target = requestTicks, args = (cex, 'cex'))
 t2 = threading.Thread(target = requestTicks, args = (bitfinex, 'bfx'))
 t3 = threading.Thread(target = requestTicks, args = (kraken, 'krk'))
 t4 = threading.Thread(target = sortTicks, args = ())
-
 
 #t1.daemon = True
 t2.daemon = True

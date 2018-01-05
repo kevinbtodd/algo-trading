@@ -2,6 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sqlite3
 
+period = 5000
+
 # connect to sqlite database 'tickdata.db'
 conn = sqlite3.connect('ticks.db')
 
@@ -15,8 +17,8 @@ conn.close()
 long_bfx = -bfx_data['ask'] + krk_data['bid']
 # short_bfx = bfx_data['bid'] - cex_data['ask']
 
-ma = pd.rolling_mean(long_bfx, 5000)
-moving_sd = pd.rolling_std(long_bfx, 5000) 
+ma = pd.rolling_mean(long_bfx, period)
+moving_sd = pd.rolling_std(long_bfx, period) 
 
 
 moving_z = (long_bfx - ma) * (1/moving_sd)

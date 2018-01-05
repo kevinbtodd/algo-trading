@@ -3,11 +3,10 @@ import time
 import threading
 import queue
 import csv
-import gdax
-import cex
+import sqlite3
+
 import bitfinex
 import kraken
-import sqlite3
 
 
 # MAKE SURE FILENAMES ARE IN THE RIGHT ORDER (LOWEST ID NUMBER FIRST)

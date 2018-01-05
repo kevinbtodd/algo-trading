@@ -9,7 +9,7 @@ import bitfinex
 import kraken
 
 
-# MAKE SURE FILENAMES ARE IN THE RIGHT ORDER (LOWEST ID NUMBER FIRST)
+# MAKE SURE TABLE NAMES ARE IN THE RIGHT ORDER (LOWEST ID NUMBER FIRST)
 tables = ['bitfinex', 'kraken']
 database = 'ticks.db'
 
@@ -46,8 +46,8 @@ def requestTicks(exchange, identifier): # n threads = 3
 
 def sortTicks(): # n threads = 1
 
-    global margin # margin is not used in this function???
-
+    global margin 
+    
     while True:
 
         # wait for all responses to be added to queue before getting responses from the queue

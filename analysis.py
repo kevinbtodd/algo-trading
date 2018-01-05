@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sqlite3
@@ -36,6 +35,3 @@ plt.plot(moving_z)
 plt.axhline(0, color='black')
 plt.axhline(4.0, color='red', linestyle='--')
 plt.axhline(-4.0, color='green', linestyle='--')
-
-
-

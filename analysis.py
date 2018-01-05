@@ -37,29 +37,5 @@ plt.axhline(0, color='black')
 plt.axhline(4.0, color='red', linestyle='--')
 plt.axhline(-4.0, color='green', linestyle='--')
 
-# some code to share both x axis
 
-plt.show()
-
-ax1 = plt.subplot(211)
-ax2 = plt.subplot(212, sharex = ax1)
-
-
-plt.plot(long_bfx)
-plt.plot(ma)
-
-
-long_bfx.plot()
-
-
-
-timestamps = bfx_data['timestamp']
-
-bfx_data['diff'] = timestamps.diff(periods=1)
-
-difference = bfx_data['diff']
-
-
-difference = difference.dropna()
-plt.hist(difference, bins = 100)
 

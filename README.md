@@ -2,4 +2,6 @@
 
 To collect data: python get_data.py
 
-To analyse data: run analysis.py using an ipython console for nice visualisations
+Leave running for around a week to collect a good amount of data
+
+To analyse data: python analysis.py

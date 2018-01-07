@@ -20,13 +20,9 @@ long_bfx = -bfx_data['ask'] + krk_data['bid']
 ma = pd.rolling_mean(long_bfx, period)
 moving_sd = pd.rolling_std(long_bfx, period) 
 
-
 moving_z = (long_bfx - ma) * (1/moving_sd)
 
-
 plt.plot(moving_z)
-
-
 
 ax1 = plt.subplot(211)
 plt.plot(long_bfx)
